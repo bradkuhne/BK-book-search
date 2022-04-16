@@ -2,8 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Jumbotron, Container, Col, Form, Button, Card, CardColumns } from 'react-bootstrap';
 
 import Auth from '../utils/auth';
-import { saveBook, searchGoogleBooks } from '../utils/API';
+import { searchGoogleBooks } from '../utils/API';  // need for external google search API
 import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
+
+//added
+import { useMutation } from '@apollo/client';
+import { SAVE_BOOK } from '../utils/mutations';
+// import { saveBook } from '../../../server/controllers/user-controller';
 
 const SearchBooks = () => {
   // create state for holding returned google api data
@@ -19,6 +24,8 @@ const SearchBooks = () => {
   useEffect(() => {
     return () => saveBookIds(savedBookIds);
   });
+
+  const [saveBook, { error }] = useMutation(SAVE_BOOK);
 
   // create method to search for books and set state on form submit
   const handleFormSubmit = async (event) => {
@@ -43,6 +50,7 @@ const SearchBooks = () => {
         title: book.volumeInfo.title,
         description: book.volumeInfo.description,
         image: book.volumeInfo.imageLinks?.thumbnail || '',
+        link: book.volumeInfo.infoLink
       }));
 
       setSearchedBooks(bookData);
@@ -65,14 +73,19 @@ const SearchBooks = () => {
     }
 
     try {
-      const response = await saveBook(bookToSave, token);
+      const updatedUser = await saveBook({ variables: { ...bookToSave } });
 
-      if (!response.ok) {
+
+
+      // const response = await saveBook(bookToSave, token);
+
+      if (!updatedUser) {
         throw new Error('something went wrong!');
       }
 
       // if book successfully saves to user's account, save book id to state
       setSavedBookIds([...savedBookIds, bookToSave.bookId]);
+      saveBookIds(saveBookIds);
     } catch (err) {
       console.error(err);
     }
