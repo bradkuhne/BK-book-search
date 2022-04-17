@@ -10,7 +10,7 @@ const SignupForm = () => {
   // set state for form validation
   const [validated] = useState(false);
   // set state for alert
-  const [showAlert, setShowAlert] = useState(false);
+  // const [showAlert, setShowAlert] = useState(false); // commented out because different than working homework
 
   const [addUser, { error }] = useMutation(ADD_USER);
 
@@ -19,28 +19,33 @@ const SignupForm = () => {
     setUserFormData({ ...userFormData, [name]: value });
   };
 
-  const handleFormSubmit = async (event) => {
+  const handleFormSubmit = async event => {
     event.preventDefault();
 
     // check if form has everything (as per react-bootstrap docs)
-    const form = event.currentTarget;
-    if (form.checkValidity() === false) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
+    //  Uncomment code below once error found *****
+    // const form = event.currentTarget;
+    // if (form.checkValidity() === false) {
+    //   event.preventDefault();
+    //   event.stopPropagation();
+    // }
 
     try {
+      console.log("this is addUser: ", addUser);
+      console.log(userFormData);
+      const { data } = await addUser({ variables: { ...userFormData } });
       
-      const { data } = await addUser({ variables: { ...userFormData }});
-
       if (!data) {
+        console.log("NO DATA FOUND")
         throw new Error('something went wrong!');
       }
 
       Auth.login(data.addUser.token, data.addUser.user);
+      console.log ("Line after auth.login");
     } catch (err) {
+      console.log("about to console log error");
       console.error(err);
-      setShowAlert(true);
+      // setShowAlert(true); // add back in once error fixed
     }
 
     setUserFormData({
@@ -55,9 +60,11 @@ const SignupForm = () => {
       {/* This is needed for the validation functionality above */}
       <Form noValidate validated={validated} onSubmit={handleFormSubmit}>
         {/* show alert if server response is bad */}
+        {/*
         <Alert dismissible onClose={() => setShowAlert(false)} show={showAlert} variant='danger'>
           Something went wrong with your signup!
         </Alert>
+        */}
 
         <Form.Group>
           <Form.Label htmlFor='username'>Username</Form.Label>
