@@ -10,7 +10,7 @@ const SignupForm = () => {
   // set state for form validation
   const [validated] = useState(false);
   // set state for alert
-  // const [showAlert, setShowAlert] = useState(false); // commented out because different than working homework
+  const [showAlert, setShowAlert] = useState(false); // commented out because different than working homework
 
   const [addUser, { error }] = useMutation(ADD_USER);
 
@@ -24,11 +24,11 @@ const SignupForm = () => {
 
     // check if form has everything (as per react-bootstrap docs)
     //  Uncomment code below once error found *****
-    // const form = event.currentTarget;
-    // if (form.checkValidity() === false) {
-    //   event.preventDefault();
-    //   event.stopPropagation();
-    // }
+    const form = event.currentTarget;
+    if (form.checkValidity() === false) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
 
     try {
       console.log("this is addUser: ", addUser);
@@ -45,7 +45,7 @@ const SignupForm = () => {
     } catch (err) {
       console.log("about to console log error");
       console.error(err);
-      // setShowAlert(true); // add back in once error fixed
+      setShowAlert(true);
     }
 
     setUserFormData({
@@ -60,11 +60,9 @@ const SignupForm = () => {
       {/* This is needed for the validation functionality above */}
       <Form noValidate validated={validated} onSubmit={handleFormSubmit}>
         {/* show alert if server response is bad */}
-        {/*
         <Alert dismissible onClose={() => setShowAlert(false)} show={showAlert} variant='danger'>
           Something went wrong with your signup!
         </Alert>
-        */}
 
         <Form.Group>
           <Form.Label htmlFor='username'>Username</Form.Label>
